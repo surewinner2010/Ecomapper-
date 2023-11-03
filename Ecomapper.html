@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>EcoMapper - Explore Nature</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('C:\\Users\\Dell\\Downloads\\image.webp');
+            /* Note: Make sure the path to the image is correct and accessible */
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #555;
+        }
+
+                #videoElement {
+            display: none;
+            width: 100%;
+            max-width: 640px;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        #captureButton {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #captureButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+<h1>Welcome to EcoMapper</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#help">Help</a></li>
+                <a href="#leaderboard" onclick="fetchGitHubLeaderboardData()">View GitHub Leaderboard</a>
+            </ul>
+        </nav>
+    </header>
+
+        <main>
+        <section id="imageSelection">
+            <input type="file" accept="image/*" id="fileInput">
+            <img src="" id="imagePreview" alt="Selected Image" style="max-width: 300px">
+            <button id="recognizeButton">Recognize Species</button>
+        </section>
+</section>
+
+            <section id="homeScreen">
+            <h2>Welcome to EcoMapper</h2>
+            <p>Explore the natural world and learn about different species using your camera!</p>
+            <p>EcoMapper allows you to capture species, identify them, and earn points for your discoveries.</p>
+            <p>Tips: Capture clear images in good lighting to get accurate identifications. Start exploring today!</p>
+            <button id="captureButton">Capture Image</button>
+            <video id="videoElement" autoplay></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </section>
+
+        <section id="about">
+            <h1>About EcoMapper</h1>
+            <p>An app designed to explore and document nature, fostering environmental awareness.</p>
+        </section>
+
+        <section id="contact">
+            <h1>Contact Us</h1>
+            <p>Feel free to contact us for any queries or collaborations.</p>
+            <address>
+                Email: contact@ecomapper.com
+            </address>
+        </section>
+
+<main>
+        <section id="imageSelection">
+            <input type="file" accept="image/*" id="fileInput">
+            <img src="" id="imagePreview" alt="Selected Image" style="max-width: 300px">
+            <button id="recognizeButton">Recognize Species</button>
+        </section>
+    </main>
+
+    <script>
+        const captureButton = document.getElementById('captureButton');
+        const video = document.getElementById('videoElement');
+        const canvas = document.getElementById('canvas');
+
+        captureButton.addEventListener('click', function() {
+            if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(stream) {
+                        video.srcObject = stream;
+                        video.style.display = 'block';
+                    })
+                    .catch(function(err) {
+                        console.error('Error accessing the camera: ', err);
+                    });
+            } else {
+                alert('Camera access is not supported on this device/browser.');
+            }
+        });
+
+        video.addEventListener('loadedmetadata', function(e) {
+            video.play();
+        });
+
+        captureButton.onclick = function() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Convert canvas content to data URL
+            const imgData = canvas.toDataURL('image/jpeg');
+            // Display the captured image
+            const imgElement = document.createElement('img');
+            imgElement.src = imgData;
+            document.body.appendChild(imgElement);
+        };
+</sript>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const recognizeButton = document.getElementById('recognizeButton');
+
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        recognizeButton.addEventListener('click', function() {
+            // Simulating species recognition API call
+            // Replace this with your actual API or service for species recognition
+            const imageUrl = imagePreview.src; // The image to be recognized
+            fetch('https://api.species-recognition.com/recognize', {
+                method: 'POST',
+                body: JSON.stringify({ image: imageUrl }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Species recognized: ' + data.species);
+                // Process the recognized species information as needed
+            })
+            .catch(error => {
+                console.error('Error recognizing species: ', error);
+            });
+        });
+
+recognizeButton.addEventListener('click', function() {
+    const imageUrl = imagePreview.src;
+    
+    // Replace this URL with the actual API endpoint for species recognition
+    const recognitionApiUrl = 'https://api.species-recognition.com/recognize';
+
+    fetch(recognitionApiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // Include your API key or credentials as needed
+            'Authorization': 'Bearer YOUR_API_KEY'
+        },
+        body: JSON.stringify({ image: imageUrl })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const recognizedSpecies = data.species;
+        const isRare = data.isRare; // Assuming API response contains rarity information
+
+        if (isRare) {
+            // Add 5 points for recognizing a rare species
+            addPoints(5);
+            alert('Recognized a rare species: ' + recognizedSpecies + '. You earned 5 points!');
+        } else {
+            // Add 2 points for recognizing a common species
+            addPoints(2);
+            alert('Recognized a common species: ' + recognizedSpecies + '. You earned 2 points!');
+        }
+    })
+    .catch(error => {
+        console.error('Error recognizing species: ', error);
+    });
+});
+
+let totalPoints = 0; // Initialize the total points
+
+function addPoints(points) {
+    totalPoints += points; // Increment total points
+    // Update the UI or perform any actions based on totalPoints
+}
+
+
+        // Retrieve leaderboard data from localStorage
+        const leaderboardData = JSON.parse(localStorage.getItem('leaderboard')) || [];
+
+        // Display leaderboard
+        const leaderboardList = document.getElementById('leaderboardList');
+        leaderboardData
+            .sort((a, b) => b.points - a.points) // Sort by points in descending order
+            .forEach((user, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${user.username} - ${user.points} points`;
+                leaderboardList.appendChild(listItem);
+            });
+
+// Example to update the leaderboard after users have earned points
+function updateUserLeaderboard(username, points) {
+    let leaderboardData = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    let userExists = false;
+
+    // Check if the user already exists in the leaderboard data
+    leaderboardData.forEach(user => {
+        if (user.username === username) {
+            userExists = true;
+            user.points += points; // Update points for existing user
+        }
+    });
+
+    if (!userExists) {
+        // Add a new user with points to the leaderboard data
+        leaderboardData.push({ username, points });
+    }
+
+    // Update localStorage with the modified leaderboard data
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+}
+
+        function fetchGitHubLeaderboardData() {
+            fetch('https://your-github-leaderboard-api.com/leaderboard')
+                .then(response => response.json())
+                .then(data => {
+                    // Process the data received from the API
+                    console.log('GitHub Leaderboard Data:', data);
+
+                    // Update your page content with the received data
+                    // For example, you can modify the HTML elements to display the leaderboard data
+                    const leaderboardDataElement = document.getElementById('leaderboardData');
+                    leaderboardDataElement.innerHTML = JSON.stringify(data); // Customize this based on your needs
+                })
+                .catch(error => {
+                    console.error('Error fetching GitHub leaderboard data:', error);
+                });
+        }
+</script>
+
+<script>
+
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const recognizeButton = document.getElementById('recognizeButton');
+
+        // Function to add points
+        function addPoints(points) {
+            // API call to add points to the user's account
+            // For simulation purposes, we'll just log the points added
+            console.log(`Points added: ${points}`);
+        }
+
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        recognizeButton.addEventListener('click', function() {
+            const imageUrl = imagePreview.src;
+            fetchSpeciesRecognition(imageUrl);
+        });
+
+        function fetchSpeciesRecognition(imageUrl) {
+            // Replace 'your-species-recognition-api' with your actual API endpoint
+            fetch('https://your-species-recognition-api.com/recognize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer YOUR_API_KEY' // Include your API key or credentials
+                },
+                body: JSON.stringify({ image: imageUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Species recognized: ' + data.species);
+                // Add 5 points for recognizing a species
+                addPoints(5);
+            })
+            .catch(error => {
+                console.error('Error recognizing species: ', error);
+            });
+        }
+    </script>
+
+<script>
+    function fetchGitHubLeaderboardData() {
+        fetch('https://your-github-leaderboard-api.com/leaderboard')
+            .then(response => response.json())
+            .then(data => {
+                // Process the data received from the API
+                console.log('GitHub Leaderboard Data:', data);
+
+                // Update your page content with the received data
+                // For example, you can modify the HTML elements to display the leaderboard data
+                const leaderboardDataElement = document.getElementById('leaderboardData');
+                leaderboardDataElement.innerHTML = JSON.stringify(data); // Customize this based on your needs
+            })
+            .catch(error => {
+                console.error('Error fetching GitHub leaderboard data:', error);
+            });
+    }
+</script>
+
+</body>
+
+</html>
